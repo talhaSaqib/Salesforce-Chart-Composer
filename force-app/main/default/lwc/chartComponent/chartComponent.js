@@ -2,10 +2,10 @@ import { LightningElement, api } from 'lwc';
 import { loadScript } from 'lightning/platformResourceLoader';
 
 // Static Resource
-import chartJs from '@salesforce/resourceUrl/chartJS';
+import chartJs from '@salesforce/resourceUrl/ChartJS';
 
 // Apex Methods
-import getChartData from "@salesforce/apex/chartComponentHandler.getChartData";
+import getChartData from "@salesforce/apex/ChartComponentHandler.getChartData";
 
 export default class GraphLWC extends LightningElement {
     @api recordId;
