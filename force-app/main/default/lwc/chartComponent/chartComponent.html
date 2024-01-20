@@ -1,0 +1,18 @@
+<template>
+    <!-- Main Container -->
+    <lightning-card title={chartTitle}>
+
+        <!-- Error Message -->
+        <div style="padding:15px;">
+            <template lwc:if={errorMessage}> 
+                <p style="color: red;">
+                    {errorMessage}
+                </p>
+             </template>
+
+            <!-- Canvas that contains rendered Chart -->
+            <canvas data-id="chartCanvas"></canvas>
+        </div>
+
+    </lightning-card>
+</template>
