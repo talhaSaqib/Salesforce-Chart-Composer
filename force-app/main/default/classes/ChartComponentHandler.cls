@@ -14,29 +14,14 @@ public with sharing class ChartComponentHandler {
      * @return  `String` The JSON string that contains the Chart response structured as Chart Class.
      */
     @AuraEnabled
-    public static String getChartData(String chartId, String recordId){
-        ChartComponentHandler.Chart response = new ChartComponentHandler.Chart(); 
+    public static String getChartData(String chartId, String recordIdWhereChartIs) {
+
+        ChartComponentHandler.Chart response = new ChartComponentHandler.Chart();
+        response.datasets = new List<ChartComponentHandler.Dataset>();
 
         List<Chart__c> chartData = [SELECT
                                         Id,
-                                        Name,
-                                        Chart_Type__c,
-
-                                        Source_Field__c,
-                                        Source_Object__c,
-                                        Source_Label__c,
-                                        Dataset_Label__c,
-                                        Relationship_Field__c,
-
-                                        Records_Limit__c,
-                                        Sort_By__c,
-                                        Sort_Order__c,
-                                        Earliest_Date__c,
-                                        Latest_Date__c,
-
-                                        Background_Color__c,
-                                        Border_Color__c,
-                                        Border_Width__c
+                                        Name
                                     FROM
                                         Chart__c
                                     WHERE
@@ -48,65 +33,110 @@ public with sharing class ChartComponentHandler {
             // Setting values for Chart response
             Chart__c chartAttributes = chartData[0];
             response.chartTitle = chartAttributes.Name;
-            response.chartType = chartAttributes.Chart_Type__c;
-            response.datasetLabel = chartAttributes.Dataset_Label__c;
-            response.backgroundColor = chartAttributes.Background_Color__c;
-            response.borderColor = chartAttributes.Border_Color__c;
-            response.borderWidth =  (Integer) chartAttributes.Border_Width__c;
 
-            // Composing and validating SOQL
-            String query = validateAndComposeQuery( String.escapeSingleQuotes(chartAttributes.Source_Field__c),
-                                                    String.escapeSingleQuotes(chartAttributes.Source_Label__c),
-                                                    String.escapeSingleQuotes(chartAttributes.Source_Object__c),
-                                                    chartAttributes.Relationship_Field__c,
-                                                    
-                                                    (Integer) chartAttributes.Records_Limit__c,
-                                                    chartAttributes.Sort_By__c,
-                                                    chartAttributes.Sort_Order__c,
-                                                    String.valueOf(chartAttributes.Earliest_Date__c),
-                                                    String.valueOf(chartAttributes.Latest_Date__c),
-                                                    
-                                                    recordId,
-                                                    chartAttributes.Id,
-                                                    response);
+            makeResponseFromChartDatasets(chartAttributes.Id, response, recordIdWhereChartIs);
             
-            if(query != null) {
-
-                // Parsing the records and segregating the data and labels.
-                List<sObject> recordsList = Database.Query(query);
-                System.debug(query);
-                System.debug('Query Results = ' + recordsList);
-
-                List<String> labels = new List<String>();
-                List<Object> data = new List<Object>();
- 
-                for(sObject record : recordsList) {
-                     String label = (String) record.get(chartAttributes.Source_Label__c);
-                     Object dataValue = record.get(chartAttributes.Source_Field__c);
- 
-                     // Collecting Label Values
-                     if(String.isBlank(label)) {
-                         labels.add('');
-                     } else {
-                         labels.add(label);
-                     }
- 
-                     // Collecting Dataset Values
-                     if(dataValue == null) {
-                         data.add(0);
-                     } else {
-                         data.add(dataValue);
-                     }
-                 }
- 
-                response.labels = labels;
-                response.dataset = data;
-            } 
         } else {
             response.errorMessage = 'No Chart record found for the specified Chart Id. Please make sure that you have entered a valid Chart Id.';
         }
 
         return JSON.serialize(response);
+    }
+
+    private static void makeResponseFromChartDatasets(String chartRecordId,
+                                                    ChartComponentHandler.Chart response,
+                                                    String recordIdWhereChartIs) {
+
+        List<Dataset__c> datasetsList = [SELECT 
+                                            Id,
+                                            Chart_Type__c,	
+                                            Source_Field__c,
+                                            Source_Object__c,
+                                            Source_Label__c,
+                                            Dataset_Label__c,
+                                            Relationship_Field__c,
+
+                                            Records_Limit__c,
+                                            Sort_By__c,
+                                            Sort_Order__c,
+                                            Earliest_Date__c,
+                                            Latest_Date__c,
+
+                                            Background_Color__c,
+                                            Border_Color__c,
+                                            Border_Width__c
+                                        FROM
+                                            Dataset__c
+                                        WHERE
+                                            Chart__c = :chartRecordId
+                                        LIMIT 1];
+        
+        if(datasetsList.size() > 0) {
+
+            for(Dataset__c dataset : datasetsList) {
+
+                ChartComponentHandler.Dataset tempDataset = new ChartComponentHandler.Dataset();
+                tempDataset.chartType = dataset.Chart_Type__c;
+                tempDataset.datasetLabel = dataset.Dataset_Label__c;
+                tempDataset.backgroundColor = dataset.Background_Color__c;
+                tempDataset.borderColor = dataset.Border_Color__c;
+                tempDataset.borderWidth = (Integer) dataset.Border_Width__c;
+
+                // Composing and validating SOQL
+                String query = validateAndComposeQuery( String.escapeSingleQuotes(dataset.Source_Field__c),
+                                                        String.escapeSingleQuotes(dataset.Source_Label__c),
+                                                        String.escapeSingleQuotes(dataset.Source_Object__c),
+                                                        dataset.Relationship_Field__c,
+                                                        
+                                                        (Integer) dataset.Records_Limit__c,
+                                                        dataset.Sort_By__c,
+                                                        dataset.Sort_Order__c,
+                                                        String.valueOf(dataset.Earliest_Date__c),
+                                                        String.valueOf(dataset.Latest_Date__c),
+                                                        
+                                                        recordIdWhereChartIs,
+                                                        dataset.Id,
+                                                        response);
+
+                if(query != null) {
+
+                    // Parsing the records and segregating the data and labels.
+                    List<sObject> recordsList = Database.Query(query);
+                    System.debug(query);
+                    System.debug('Query Results = ' + recordsList);
+
+                    List<String> labels = new List<String>();
+                    List<Object> data = new List<Object>();
+        
+                    for(sObject record : recordsList) {
+                            String label = (String) record.get(dataset.Source_Label__c);
+                            Object dataValue = record.get(dataset.Source_Field__c);
+        
+                            // Collecting Label Values
+                            if(String.isBlank(label)) {
+                                labels.add('');
+                            } else {
+                                labels.add(label);
+                            }
+        
+                            // Collecting Dataset Values
+                            if(dataValue == null) {
+                                data.add(0);
+                            } else {
+                                data.add(dataValue);
+                            }
+                        }
+        
+                    tempDataset.labels = labels;
+                    tempDataset.dataset = data;
+                }
+
+                response.datasets.add(tempDataset);
+            }
+
+        } else {
+            response.errorMessage = 'No Dataset record found for this Chart. Please make sure that you have at least 1 dataset.';
+        }
     }
 
     /**
@@ -334,6 +364,10 @@ public with sharing class ChartComponentHandler {
     public class Chart {
         private String errorMessage = null;
         private String chartTitle;
+        private List<ChartComponentHandler.Dataset> datasets;
+    }
+
+    public class Dataset {
         private String chartType;
         private String datasetLabel;
         private List<String> labels;

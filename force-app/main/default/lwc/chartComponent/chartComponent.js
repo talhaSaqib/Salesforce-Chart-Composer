@@ -75,12 +75,12 @@ export default class GraphLWC extends LightningElement {
 
             // Rendering Chart
             this.chart = new window.Chart(ctx, {
-                type: this.chartProperties.chartType, 
                 data: {
                     labels: this.chartProperties.labels,
 
                     // Array of datasets
                     datasets: [{
+                        type: this.chartProperties.chartType, 
                         label: this.chartProperties.datasetLabel,
                         data: this.chartProperties.dataset,
                         
