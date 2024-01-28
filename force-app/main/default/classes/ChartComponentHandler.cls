@@ -127,8 +127,8 @@ public with sharing class ChartComponentHandler {
                             }
                         }
         
-                    tempDataset.labels = labels;
-                    tempDataset.dataset = data;
+                    response.labels = labels;
+                    tempDataset.data = data;
                 }
 
                 response.datasets.add(tempDataset);
@@ -155,7 +155,7 @@ public with sharing class ChartComponentHandler {
                                         String earliestDate,
                                         String latestDate,
                                         String recordId,
-                                        String chartId,
+                                        String datasetId,
                                         ChartComponentHandler.Chart response) {
         // Validating Source Object
         String slct = 'SELECT ';
@@ -175,7 +175,7 @@ public with sharing class ChartComponentHandler {
                                                 latestDate,
                                                 relationField,
                                                 recordId,
-                                                chartId,
+                                                datasetId,
                                                 response);
                 if(query == null) {
                     return null;
@@ -229,7 +229,7 @@ public with sharing class ChartComponentHandler {
                                                   String latestDate,
                                                   String relationField,
                                                   String recordId,
-                                                  String chartId,
+                                                  String datasetId,
                                                   ChartComponentHandler.Chart response) {
         Boolean noFilterApplied = false;
 
@@ -272,7 +272,7 @@ public with sharing class ChartComponentHandler {
         // Validatiion with Dynamic Filters
         query = getFiltersAndValidateQuery(noFilterApplied,
                                             query,
-                                            chartId,
+                                            datasetId,
                                             response);
         return query;                                      
     } 
@@ -284,7 +284,7 @@ public with sharing class ChartComponentHandler {
      */
     private static String getFiltersAndValidateQuery(Boolean noFilterApplied,
                                                     String query,
-                                                    String chartId,
+                                                    String datasetId,
                                                     ChartComponentHandler.Chart response) {
         List<Chart_Filter__c> filters = [SELECT
                                             Field__c,
@@ -293,7 +293,7 @@ public with sharing class ChartComponentHandler {
                                         FROM
                                             Chart_Filter__c
                                         WHERE
-                                            Chart__c = :chartId];
+                                            Dataset__c = :datasetId];
 
         for(Chart_Filter__c f : filters) {
             if(noFilterApplied) {
@@ -302,9 +302,6 @@ public with sharing class ChartComponentHandler {
                 query += ' AND ';
             }
 
-            // Adding wildcard % to value
-            String str = f.Value__c;
-            String valueWithWildCard = '\'%' + str.substring(1, str.length() - 1) + '%\'';
 
             List<String> listOperators = new List<String>{'IN', 'NOT IN', 'INCLUDES', 'EXCLUDES'};
             if(listOperators.contains(f.Operator__c)) {
@@ -315,11 +312,19 @@ public with sharing class ChartComponentHandler {
                         + ')';
 
             } else if(f.Operator__c == 'LIKE') {
+                // Adding wildcard % to value
+                String str = f.Value__c;
+                String valueWithWildCard = '\'%' + str.substring(1, str.length() - 1) + '%\'';
+
                 query += String.escapeSingleQuotes(f.Field__c) +' '
                         + String.escapeSingleQuotes(f.Operator__c) +' '
                         + valueWithWildCard;
             
             } else if(f.Operator__c == 'NOT LIKE') {
+                 // Adding wildcard % to value
+                 String str = f.Value__c;
+                 String valueWithWildCard = '\'%' + str.substring(1, str.length() - 1) + '%\'';
+                 
                 query += '(NOT '
                         + String.escapeSingleQuotes(f.Field__c) +' '
                         + 'LIKE '
@@ -365,13 +370,13 @@ public with sharing class ChartComponentHandler {
         private String errorMessage = null;
         private String chartTitle;
         private List<ChartComponentHandler.Dataset> datasets;
+        private List<String> labels;
     }
 
     public class Dataset {
         private String chartType;
         private String datasetLabel;
-        private List<String> labels;
-        private List<Object> dataset;
+        private List<Object> data;
         private String backgroundColor;
         private String borderColor;
         private Integer borderWidth;

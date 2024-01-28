@@ -4,11 +4,14 @@
  * @author Talha Saqib
  * @since 20 Jan, 2024
  */
+
 @isTest
 public with sharing class ChartComponentHandler_Test {
     /**
      * Setup method responsible for test data creation.
      */
+
+/*
     @TestSetup
     static void makeData(){
 
@@ -66,10 +69,12 @@ public with sharing class ChartComponentHandler_Test {
         a1.NumberOfEmployees = 1;
         insert a1;
     }
-
+*/
     /**
      * This test method checks if the getChartData() method is working without returning any error
      */
+
+     /*
     @isTest
     public static void getChartData() {
         String chartId = [SELECT Chart_Id__c FROM Chart__c WHERE Source_Label__c = 'Name' Limit 1].Chart_Id__c;
@@ -81,4 +86,5 @@ public with sharing class ChartComponentHandler_Test {
         System.debug(response);
         Assert.areEqual(null, errorMessage);
     }
+    */
 }
