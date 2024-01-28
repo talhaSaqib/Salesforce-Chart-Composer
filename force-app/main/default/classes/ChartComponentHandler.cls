@@ -69,7 +69,7 @@ public with sharing class ChartComponentHandler {
                                             Dataset__c
                                         WHERE
                                             Chart__c = :chartRecordId
-                                        LIMIT 1];
+                                        ];
         
         if(datasetsList.size() > 0) {
 
