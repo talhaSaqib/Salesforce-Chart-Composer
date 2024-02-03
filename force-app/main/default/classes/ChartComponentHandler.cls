@@ -61,6 +61,7 @@ public with sharing class ChartComponentHandler {
                                             Sort_Order__c,
                                             Earliest_Date__c,
                                             Latest_Date__c,
+                                            Filter_Requirements__c,
 
                                             Background_Color__c,
                                             Border_Color__c,
@@ -96,6 +97,7 @@ public with sharing class ChartComponentHandler {
                                                         
                                                         recordIdWhereChartIs,
                                                         dataset.Id,
+                                                        dataset.Filter_Requirements__c,
                                                         response);
 
                 if(query != null) {
@@ -156,6 +158,7 @@ public with sharing class ChartComponentHandler {
                                         String latestDate,
                                         String recordId,
                                         String datasetId,
+                                        String filterRequirement,
                                         ChartComponentHandler.Chart response) {
         // Validating Source Object
         String slct = 'SELECT ';
@@ -176,6 +179,7 @@ public with sharing class ChartComponentHandler {
                                                 relationField,
                                                 recordId,
                                                 datasetId,
+                                                filterRequirement,
                                                 response);
                 if(query == null) {
                     return null;
@@ -230,6 +234,7 @@ public with sharing class ChartComponentHandler {
                                                   String relationField,
                                                   String recordId,
                                                   String datasetId,
+                                                  String filterRequirement,
                                                   ChartComponentHandler.Chart response) {
         Boolean noFilterApplied = false;
 
@@ -258,6 +263,7 @@ public with sharing class ChartComponentHandler {
                 query += ' WHERE ';
             } else {
                 query += ' AND ';
+                
             }
             noFilterApplied = false;
             query += String.escapeSingleQuotes(relationField) + '= \'' + recordId + '\'';
@@ -273,6 +279,7 @@ public with sharing class ChartComponentHandler {
         query = getFiltersAndValidateQuery(noFilterApplied,
                                             query,
                                             datasetId,
+                                            filterRequirement,
                                             response);
         return query;                                      
     } 
@@ -285,6 +292,7 @@ public with sharing class ChartComponentHandler {
     private static String getFiltersAndValidateQuery(Boolean noFilterApplied,
                                                     String query,
                                                     String datasetId,
+                                                    String filterRequirement,
                                                     ChartComponentHandler.Chart response) {
         List<Chart_Filter__c> filters = [SELECT
                                             Field__c,
@@ -299,19 +307,12 @@ public with sharing class ChartComponentHandler {
             if(noFilterApplied) {
                 query += ' WHERE ';
             } else {
-                query += ' AND ';
+                if(filterRequirement == 'AND' || filterRequirement == 'OR' ) {
+                    query += ' '+filterRequirement+' ';
+                }
             }
 
-
-            List<String> listOperators = new List<String>{'IN', 'NOT IN', 'INCLUDES', 'EXCLUDES'};
-            if(listOperators.contains(f.Operator__c)) {
-                query += String.escapeSingleQuotes(f.Field__c) +' '
-                        + String.escapeSingleQuotes(f.Operator__c)
-                        +' (' 
-                        + f.Value__c
-                        + ')';
-
-            } else if(f.Operator__c == 'LIKE') {
+            if(f.Operator__c == 'LIKE') {
                 // Adding wildcard % to value
                 String str = f.Value__c;
                 String valueWithWildCard = '\'%' + str.substring(1, str.length() - 1) + '%\'';
