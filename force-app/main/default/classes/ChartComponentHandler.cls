@@ -64,6 +64,8 @@ public with sharing class ChartComponentHandler {
                                             Latest_Date__c,
                                             Filter_Requirements__c,
 
+                                            SOQL_Filters__c,
+
                                             Background_Color__c,
                                             Border_Color__c,
                                             Border_Width__c
@@ -84,22 +86,37 @@ public with sharing class ChartComponentHandler {
                 tempDataset.borderColor = dataset.Border_Color__c;
                 tempDataset.borderWidth = (Integer) dataset.Border_Width__c;
 
-                // Composing and validating SOQL
-                String query = validateAndComposeQuery( String.escapeSingleQuotes(dataset.Source_Field__c),
-                                                        String.escapeSingleQuotes(dataset.Source_Label__c),
-                                                        String.escapeSingleQuotes(dataset.Source_Object__c),
-                                                        dataset.Relationship_Field__c,
-                                                        
-                                                        (Integer) dataset.Records_Limit__c,
-                                                        dataset.Sort_By__c,
-                                                        dataset.Sort_Order__c,
-                                                        String.valueOf(dataset.Earliest_Date__c),
-                                                        String.valueOf(dataset.Latest_Date__c),
-                                                        
-                                                        recordIdWhereChartIs,
-                                                        dataset.Id,
-                                                        dataset.Filter_Requirements__c,
-                                                        response);
+                String query;
+                if( dataset.Filter_Requirements__c == 'Custom' &&
+                    !String.isBlank(dataset.SOQL_Filters__c) ) {
+
+                    // Validating Custom SOQL
+                    query = validateCustomSOQL(dataset.SOQL_Filters__c,
+                                                dataset.Source_Field__c,
+                                                dataset.Source_Label__c,
+                                                dataset.Source_Object__c,
+                                                dataset.Relationship_Field__c,
+                                                recordIdWhereChartIs,
+                                                response);
+
+                } else {
+                    // Composing and validating SOQL
+                    query = validateAndComposeQuery( dataset.Source_Field__c,
+                                                    dataset.Source_Label__c,
+                                                    dataset.Source_Object__c,
+                                                    dataset.Relationship_Field__c,
+                                                    
+                                                    (Integer) dataset.Records_Limit__c,
+                                                    dataset.Sort_By__c,
+                                                    dataset.Sort_Order__c,
+                                                    String.valueOf(dataset.Earliest_Date__c),
+                                                    String.valueOf(dataset.Latest_Date__c),
+                                                    
+                                                    recordIdWhereChartIs,
+                                                    dataset.Id,
+                                                    dataset.Filter_Requirements__c,
+                                                    response);
+                }
 
                 if(query != null) {
 
@@ -308,6 +325,8 @@ public with sharing class ChartComponentHandler {
             if(noFilterApplied) {
                 query += ' WHERE ';
             } else {
+                // ENCLOSE THESE FILTERS IN BRACKETS
+
                 if(filterRequirement == 'AND' || filterRequirement == 'OR' ) {
                     query += ' '+filterRequirement+' ';
                 }
@@ -349,6 +368,35 @@ public with sharing class ChartComponentHandler {
         return query;
     }
 
+    private static String validateCustomSOQL(String SOQLFilters,
+                                            String sourceField,
+                                            String sourceLabel,
+                                            String sourceObject,
+                                            String relationField,
+                                            String recordIdWhereChartis,
+                                            ChartComponentHandler.Chart response) {
+
+        String query = 'SELECT ' + sourceField + ', ' + sourceLabel + ' FROM ' + sourceObject + ' WHERE CUSTOM_FILTERS';
+        if(!String.isBlank(relationField)) {
+            query += relationField + '= \'' + recordIdWhereChartis + '\' AND (CUSTOM_FILTERS)';
+        }
+
+        String lowerCaseFilters = SOQLFilters.toLowerCase();
+        String tempFilters = lowerCaseFilters.substringBefore('limit');
+
+        query = query.replace('CUSTOM_FILTERS', SOQLFilters);
+        String tempQuery = query.replace('CUSTOM_FILTERS', tempFilters);
+
+        System.debug('CUSTOM SOQL: ' + query);
+        System.debug('Temp SOQL: ' + tempQuery);
+
+        if(!tryQuery(tempQuery)) {
+            response.errorMessage = 'The Custom SQOL is invalid. Custom SQOL: ' + query;
+            return null;
+        }
+        return query;
+    }
+
     /**
      * This method runs the input SOQL query to see if it is valid or not.
      * 
@@ -356,7 +404,7 @@ public with sharing class ChartComponentHandler {
      */
     private static Boolean tryQuery(String query) {
         try{
-            Database.Query(query + ' LIMIT 1');
+            Database.Query(query + ' LIMIT 0');
             return true;
         }
         catch(QueryException ex) {
