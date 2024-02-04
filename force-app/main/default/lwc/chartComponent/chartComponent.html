@@ -1,6 +1,18 @@
 <template>
     <!-- Main Container -->
-    <lightning-card title={chartTitle}>
+    <lightning-card>
+
+        <!-- Link to the Chart Record -->
+        <aura:set style="font-weight:bold;
+                         margin-left: 15px;
+                         font-size: 1.2em;"
+                  attribute="title">
+            <a href={linkTochartRecordId}
+               target="_blank"
+               style="color: black;">
+                {chartTitle}
+            </a>
+        </aura:set>
 
         <!-- Error Message -->
         <div style="padding:15px;">

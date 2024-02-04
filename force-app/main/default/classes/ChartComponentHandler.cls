@@ -33,6 +33,7 @@ public with sharing class ChartComponentHandler {
             // Setting values for Chart response
             Chart__c chartAttributes = chartData[0];
             response.chartTitle = chartAttributes.Name;
+            response.chartRecordId = chartAttributes.Id;
 
             makeResponseFromChartDatasets(chartAttributes.Id, response, recordIdWhereChartIs);
             
@@ -370,6 +371,7 @@ public with sharing class ChartComponentHandler {
     public class Chart {
         private String errorMessage = null;
         private String chartTitle;
+        private String chartRecordId;
         private List<ChartComponentHandler.Dataset> datasets;
         private List<String> labels;
     }

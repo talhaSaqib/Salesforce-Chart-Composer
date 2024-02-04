@@ -13,6 +13,7 @@ export default class GraphLWC extends LightningElement {
 
     chart; 
     chartTitle;
+    linkTochartRecordId;
     chartProperties;
     chartDatasets;
     errorMessage;
@@ -54,6 +55,7 @@ export default class GraphLWC extends LightningElement {
             result = JSON.parse(result);
             console.log('Response from Server: ', result);
             this.chartTitle = result.chartTitle;
+            this.linkTochartRecordId = "\\"+ result.chartRecordId;
             
             if(result.errorMessage == null) {
                 this.chartProperties = result;
