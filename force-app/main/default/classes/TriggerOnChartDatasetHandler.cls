@@ -7,7 +7,18 @@ public with sharing class TriggerOnChartDatasetHandler {
         Schema.DisplayType.Integer,
         Schema.DisplayType.Currency,
         Schema.DisplayType.Double,
-        Schema.DisplayType.Long
+        Schema.DisplayType.Long,
+        Schema.DisplayType.Percent
+    };
+
+    List<Schema.DisplayType> acceptedSourceLabelTypes = new List<Schema.DisplayType> {
+        Schema.DisplayType.String,
+        Schema.DisplayType.Picklist,
+        Schema.DisplayType.Integer,
+        Schema.DisplayType.Double,
+        Schema.DisplayType.Email,
+        Schema.DisplayType.Date,
+        Schema.DisplayType.ID
     };
 
     public Boolean validateDatasetFields(List<Dataset__c> newRecords) {
@@ -34,30 +45,30 @@ public with sharing class TriggerOnChartDatasetHandler {
             }
 
             if ( objectType == null ) {
-                cf.addError('The source object does not exist: '+ cf.Source_Object__c);
+                cf.addError('The Source Object does not exist: '+ cf.Source_Object__c);
                 return false;
 
             } else if ( !sourceFieldExists ) {
-                cf.addError('The Source field ('+cf.Source_Field__c+') does not belong to the Source object: '+ cf.Source_Object__c);
+                cf.addError('The Source Field ('+cf.Source_Field__c+') does not belong to the Source Object: '+ cf.Source_Object__c);
                 return false;
 
             } else if ( sourceFieldType != null &&
                         !acceptedSourceFieldTypes.contains(sourceFieldType) ) {
-                cf.addError('The Source field ('+cf.Source_Field__c+') can only be of Numeric Type');
+                cf.addError('The Source Field ('+cf.Source_Field__c+') can only be of Numeric Type');
                 return false;
             
             } else if ( !sourceLabelExists ) {
-                cf.addError('The Source Label field ('+cf.Source_Label__c+') does not belong to the Source object: '+ cf.Source_Object__c);
+                cf.addError('The Source Label field ('+cf.Source_Label__c+') does not belong to the Source Object: '+ cf.Source_Object__c);
                 return false;
 
             } else if ( sourceLabelType != null &&
-                        sourceFieldType != Schema.DisplayType.Anytype) {
-                cf.addError('The Source field ('+cf.Source_Field__c+') can only be of Numeric Type');
+                        !acceptedSourceLabelTypes.contains(sourceLabelType) ) {
+                cf.addError('The Source Label ('+cf.Source_Label__c+') is not of valid Data Type');
                 return false;
 
             } else if ( !sortByIsBlank &&
                        !sortByExists ) {
-                cf.addError('The Source By field ('+cf.Sort_By__c+') does not belong to the Source object: '+ cf.Source_Object__c);
+                cf.addError('The Source By field ('+cf.Sort_By__c+') does not belong to the Source Object: '+ cf.Source_Object__c);
                 return false;
             }
         }
