@@ -492,12 +492,16 @@ public with sharing class ChartComponentHandler {
 
     private static Object getValueFromRelationshipQuery(SObject record, String path) {
         try {
+            
           SObject temp = record;
           String[] parts = path.split('\\.');
+
           while(parts.size() > 1) {
             temp = temp.getSObject(parts.remove(0));
           }
+
           return temp.get(parts[0]);
+
         } catch(Exception e) {
           return null;
         }
