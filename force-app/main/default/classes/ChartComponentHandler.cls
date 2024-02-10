@@ -67,6 +67,7 @@ public with sharing class ChartComponentHandler {
                                             Earliest_Date__c,
                                             Latest_Date__c,
                                             Filter_Requirements__c,
+                                            Use_Custom_SOQL__c,
 
                                             SOQL__c,
 
@@ -91,7 +92,7 @@ public with sharing class ChartComponentHandler {
                 tempDataset.borderWidth = (Integer) dataset.Border_Width__c;
 
                 String query;
-                if( dataset.Filter_Requirements__c == 'Custom' &&
+                if( dataset.Use_Custom_SOQL__c &&
                     !String.isBlank(dataset.SOQL__c) ) {
 
                     // Validating Custom SOQL
@@ -132,7 +133,7 @@ public with sharing class ChartComponentHandler {
                     String sourceLabel;
                     String sourceField;
                 
-                    if(dataset.Filter_Requirements__c == 'Custom') {
+                    if(dataset.Use_Custom_SOQL__c) {
                         List<String> sourceFieldLabel = extractSoruceFieldAndLabelFromSOQL(query, response);
                         if(sourceFieldLabel == null) {
                             return;
@@ -362,8 +363,6 @@ public with sharing class ChartComponentHandler {
             if(noFilterApplied) {
                 query += ' WHERE ';
             } else {
-                // ENCLOSE THESE FILTERS IN BRACKETS
-
                 if(filterRequirement == 'AND' || filterRequirement == 'OR' ) {
                     query += ' '+filterRequirement+' ';
                 }
@@ -402,7 +401,6 @@ public with sharing class ChartComponentHandler {
                 return null;
             }
         }
-
 
         return query;
     }

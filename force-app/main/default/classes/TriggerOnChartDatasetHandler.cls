@@ -24,7 +24,7 @@ public with sharing class TriggerOnChartDatasetHandler {
     public Boolean validateDatasetFields(List<Dataset__c> newRecords) {
 
         for(Dataset__c dataset : newRecords) {
-            if(dataset.Filter_Requirements__c != 'Custom') {
+            if(!dataset.Use_Custom_SOQL__c) {
 
                 SObjectType objectType = Schema.getGlobalDescribe().get(dataset.Source_Object__c);
                 Map<String, Schema.SObjectField> fieldsMap = objectType.getDescribe().fields.getMap();
@@ -75,7 +75,10 @@ public with sharing class TriggerOnChartDatasetHandler {
                 }
             }
         }
-    
+        return true;
+    }
+
+    public Boolean validateCustomSOQL(List<Dataset__c> newRecords) {
         return true;
     }
 }
