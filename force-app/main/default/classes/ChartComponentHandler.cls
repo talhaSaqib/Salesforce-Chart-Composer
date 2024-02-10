@@ -146,8 +146,20 @@ public with sharing class ChartComponentHandler {
         
                     for(sObject record : recordsList) {
                         try {
-                            String label = (String) record.get(sourceLabel);
-                            Object dataValue = record.get(sourceField);
+                            String label;
+                            Object dataValue;
+
+                            if(sourceLabel.contains('.')) {
+                                label = (String) getValueFromRelationshipQuery(record, sourceLabel);
+                            } else {
+                                label = (String) record.get(sourceLabel);
+                            }
+
+                            if(sourceField.contains('.')) {
+                                dataValue = getValueFromRelationshipQuery(record, sourceField);
+                            } else {
+                                dataValue = record.get(sourceField);
+                            }
         
                             // Collecting Label Values
                             if(String.isBlank(label)) {
@@ -225,6 +237,9 @@ public with sharing class ChartComponentHandler {
                 if(query == null) {
                     return null;
                 }
+
+                // Adding Security Enforced
+                query += ' WITH SECURITY_ENFORCED ';
 
                 // Validating Order By Field
                 if(!String.isBlank(sortBy)) {
@@ -387,10 +402,10 @@ public with sharing class ChartComponentHandler {
                 return null;
             }
         }
+
+
         return query;
     }
-
-    
 
     /**
      * This method runs the input SOQL query to see if it is valid or not.
@@ -450,11 +465,11 @@ public with sharing class ChartComponentHandler {
             Database.Query(query);
             return query;
         }
-        catch(QueryException ex) {
+        catch(Exception ex) {
             System.debug(ex);
             response.errorMessage = 'Custom SOQL ('+ query +') is invalid. Error: ' + ex.getMessage();
             return null;
-        }
+        } 
     }
 
     private static List<String> extractSoruceFieldAndLabelFromSOQL(String query,
@@ -474,6 +489,19 @@ public with sharing class ChartComponentHandler {
             return null;
         }
     }
+
+    private static Object getValueFromRelationshipQuery(SObject record, String path) {
+        try {
+          SObject temp = record;
+          String[] parts = path.split('\\.');
+          while(parts.size() > 1) {
+            temp = temp.getSObject(parts.remove(0));
+          }
+          return temp.get(parts[0]);
+        } catch(Exception e) {
+          return null;
+        }
+      }
 
     /**
      * The structure for the JSON response that will contain all chart data.
