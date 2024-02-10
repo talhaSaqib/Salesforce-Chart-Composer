@@ -21,7 +21,8 @@ public with sharing class ChartComponentHandler {
 
         List<Chart__c> chartData = [SELECT
                                         Id,
-                                        Name
+                                        Name,
+                                        Relationship_Field__c
                                     FROM
                                         Chart__c
                                     WHERE
@@ -35,7 +36,10 @@ public with sharing class ChartComponentHandler {
             response.chartTitle = chartAttributes.Name;
             response.chartRecordId = chartAttributes.Id;
 
-            makeResponseFromChartDatasets(chartAttributes.Id, response, recordIdWhereChartIs);
+            makeResponseFromChartDatasets(  chartAttributes.Id,
+                                            chartAttributes.Relationship_Field__c,
+                                            response,
+                                            recordIdWhereChartIs);
             
         } else {
             response.errorMessage = 'No Chart record found for the specified Chart Id. Please make sure that you have entered a valid Chart Id.';
@@ -44,9 +48,10 @@ public with sharing class ChartComponentHandler {
         return JSON.serialize(response);
     }
 
-    private static void makeResponseFromChartDatasets(String chartRecordId,
-                                                    ChartComponentHandler.Chart response,
-                                                    String recordIdWhereChartIs) {
+    private static void makeResponseFromChartDatasets(  String chartRecordId,
+                                                        String relationshipField,
+                                                        ChartComponentHandler.Chart response,
+                                                        String recordIdWhereChartIs) {
 
         List<Dataset__c> datasetsList = [SELECT 
                                             Id,
@@ -55,7 +60,6 @@ public with sharing class ChartComponentHandler {
                                             Source_Object__c,
                                             Source_Label__c,
                                             Dataset_Label__c,
-                                            Relationship_Field__c,
 
                                             Records_Limit__c,
                                             Sort_By__c,
@@ -64,7 +68,7 @@ public with sharing class ChartComponentHandler {
                                             Latest_Date__c,
                                             Filter_Requirements__c,
 
-                                            SOQL_Filters__c,
+                                            SOQL__c,
 
                                             Background_Color__c,
                                             Border_Color__c,
@@ -88,14 +92,11 @@ public with sharing class ChartComponentHandler {
 
                 String query;
                 if( dataset.Filter_Requirements__c == 'Custom' &&
-                    !String.isBlank(dataset.SOQL_Filters__c) ) {
+                    !String.isBlank(dataset.SOQL__c) ) {
 
                     // Validating Custom SOQL
-                    query = validateCustomSOQL(dataset.SOQL_Filters__c,
-                                                dataset.Source_Field__c,
-                                                dataset.Source_Label__c,
-                                                dataset.Source_Object__c,
-                                                dataset.Relationship_Field__c,
+                    query = validateCustomSOQL( dataset.SOQL__c,
+                                                relationshipField,
                                                 recordIdWhereChartIs,
                                                 response);
 
@@ -104,7 +105,7 @@ public with sharing class ChartComponentHandler {
                     query = validateAndComposeQuery( dataset.Source_Field__c,
                                                     dataset.Source_Label__c,
                                                     dataset.Source_Object__c,
-                                                    dataset.Relationship_Field__c,
+                                                    relationshipField,
                                                     
                                                     (Integer) dataset.Records_Limit__c,
                                                     dataset.Sort_By__c,
@@ -127,10 +128,26 @@ public with sharing class ChartComponentHandler {
 
                     List<String> labels = new List<String>();
                     List<Object> data = new List<Object>();
+
+                    String sourceLabel;
+                    String sourceField;
+                
+                    if(dataset.Filter_Requirements__c == 'Custom') {
+                        List<String> sourceFieldLabel = extractSoruceFieldAndLabelFromSOQL(query, response);
+                        if(sourceFieldLabel == null) {
+                            return;
+                        }
+                        sourceLabel = sourceFieldLabel[0];
+                        sourceField = sourceFieldLabel[1];
+                    } else {
+                        sourceLabel = dataset.Source_Label__c;
+                        sourceField = dataset.Source_Field__c;
+                    }
         
                     for(sObject record : recordsList) {
-                            String label = (String) record.get(dataset.Source_Label__c);
-                            Object dataValue = record.get(dataset.Source_Field__c);
+                        try {
+                            String label = (String) record.get(sourceLabel);
+                            Object dataValue = record.get(sourceField);
         
                             // Collecting Label Values
                             if(String.isBlank(label)) {
@@ -145,7 +162,13 @@ public with sharing class ChartComponentHandler {
                             } else {
                                 data.add(dataValue);
                             }
+
+                        } catch(Exception ex) {
+                            System.debug(ex);
+                            response.errorMessage = 'Compiled SOQL ('+ query +') is invalid. Error: ' + ex.getMessage();
+                            return;
                         }
+                    }
         
                     response.labels = labels;
                     tempDataset.data = data;
@@ -281,7 +304,6 @@ public with sharing class ChartComponentHandler {
                 query += ' WHERE ';
             } else {
                 query += ' AND ';
-                
             }
             noFilterApplied = false;
             query += String.escapeSingleQuotes(relationField) + '= \'' + recordId + '\'';
@@ -368,34 +390,7 @@ public with sharing class ChartComponentHandler {
         return query;
     }
 
-    private static String validateCustomSOQL(String SOQLFilters,
-                                            String sourceField,
-                                            String sourceLabel,
-                                            String sourceObject,
-                                            String relationField,
-                                            String recordIdWhereChartis,
-                                            ChartComponentHandler.Chart response) {
-
-        String query = 'SELECT ' + sourceField + ', ' + sourceLabel + ' FROM ' + sourceObject + ' WHERE CUSTOM_FILTERS';
-        if(!String.isBlank(relationField)) {
-            query += relationField + '= \'' + recordIdWhereChartis + '\' AND (CUSTOM_FILTERS)';
-        }
-
-        String lowerCaseFilters = SOQLFilters.toLowerCase();
-        String tempFilters = lowerCaseFilters.substringBefore('limit');
-
-        query = query.replace('CUSTOM_FILTERS', SOQLFilters);
-        String tempQuery = query.replace('CUSTOM_FILTERS', tempFilters);
-
-        System.debug('CUSTOM SOQL: ' + query);
-        System.debug('Temp SOQL: ' + tempQuery);
-
-        if(!tryQuery(tempQuery)) {
-            response.errorMessage = 'The Custom SQOL is invalid. Custom SQOL: ' + query;
-            return null;
-        }
-        return query;
-    }
+    
 
     /**
      * This method runs the input SOQL query to see if it is valid or not.
@@ -410,6 +405,73 @@ public with sharing class ChartComponentHandler {
         catch(QueryException ex) {
             System.debug(ex);
             return false;
+        }
+    }
+
+    private static String validateCustomSOQL(String SOQL,
+                                            String relationField,
+                                            String recordIdWhereChartis,
+                                            ChartComponentHandler.Chart response) {
+
+        String query = SOQL.toLowerCase();                                        
+        if(!String.isBlank(relationField)) {
+
+            String separator;
+
+            if(query.contains(' with ')) {
+                separator = 'with';
+
+            } else if(query.contains(' group by ')) {
+                 separator = 'group by';
+            
+            } else if(query.contains(' order by ')) {
+                separator = 'order by';
+
+            } else if(query.contains(' limit ')) {
+                separator = 'limit';
+
+            } else if(query.contains(' offset ')) {
+                separator = 'offset';
+            }
+
+            String queryBefore = query.substringBefore(separator);
+            String queryAfter = query.substringAfter(separator);
+
+            if(queryBefore.contains(' where ')) {
+                queryBefore += ' and ' + relationField + '= \'' + recordIdWhereChartis + '\'';
+            } else {
+                queryBefore += ' where ' + relationField + '= \'' + recordIdWhereChartis + '\'';
+            }
+
+            query = queryBefore + ' ' + separator + ' ' + queryAfter;
+        }
+
+        try{
+            Database.Query(query);
+            return query;
+        }
+        catch(QueryException ex) {
+            System.debug(ex);
+            response.errorMessage = 'Custom SOQL ('+ query +') is invalid. Error: ' + ex.getMessage();
+            return null;
+        }
+    }
+
+    private static List<String> extractSoruceFieldAndLabelFromSOQL(String query,
+                                                                   ChartComponentHandler.Chart response) {
+        query = query.toLowerCase();
+        query = query.substringBetween('select', 'from');
+        List<String> sourceFieldLabel = query.split(',', 2);
+
+        List<String> returnList = new List<String>();
+        try{
+            returnList.add(sourceFieldLabel[0].trim());
+            returnList.add(sourceFieldLabel[1].trim());
+            return returnList;
+
+        } catch(Exception ex) {
+            response.errorMessage = 'Invalid Source Label or Source Field in SOQL. Please make sure that in Custom SOQL, first field rerpresents Source Label and second field represents Source Field. E.g. Select Name, AnnualRevenue From Account.';
+            return null;
         }
     }
 
