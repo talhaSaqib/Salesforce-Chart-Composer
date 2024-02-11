@@ -433,20 +433,7 @@ public with sharing class ChartComponentHandler {
 
             if(query.contains(' with ')) {
                 separator = 'with';
-
-            } else if(query.contains(' group by ')) {
-                 separator = 'group by';
-            
-            } else if(query.contains(' order by ')) {
-                separator = 'order by';
-
-            } else if(query.contains(' limit ')) {
-                separator = 'limit';
-
-            } else if(query.contains(' offset ')) {
-                separator = 'offset';
-            }
-
+            } 
             String queryBefore = query.substringBefore(separator);
             String queryAfter = query.substringAfter(separator);
 
@@ -490,15 +477,15 @@ public with sharing class ChartComponentHandler {
 
     private static Object getValueFromRelationshipQuery(SObject record, String path) {
         try {
-            
-          SObject temp = record;
-          String[] parts = path.split('\\.');
+            SObject temp = record;
+            String[] parts = path.split('\\.');
 
-          while(parts.size() > 1) {
-            temp = temp.getSObject(parts.remove(0));
-          }
+            while(parts.size() > 1) {
+                // Used to retrieve a related SObject from a parent SObject based on a specified relationship name.
+                temp = temp.getSObject(parts.remove(0));
+            }
 
-          return temp.get(parts[0]);
+            return temp.get(parts[0]);
 
         } catch(Exception e) {
           return null;

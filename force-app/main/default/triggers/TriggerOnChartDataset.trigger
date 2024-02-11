@@ -4,5 +4,6 @@ trigger TriggerOnChartDataset on Dataset__c (before insert, before update) {
     if(Trigger.isBefore)
     {
         handler.validateDatasetFields(Trigger.new);
+        handler.validateCustomSOQL(Trigger.new);
     }
 }
