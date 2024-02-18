@@ -68,6 +68,7 @@ public with sharing class ChartComponentHandler {
                                             Latest_Date__c,
                                             Filter_Requirements__c,
                                             Use_Custom_SOQL__c,
+                                            Custom_Filters_Logic__c,
 
                                             SOQL__c,
 
@@ -117,6 +118,7 @@ public with sharing class ChartComponentHandler {
                                                     recordIdWhereChartIs,
                                                     dataset.Id,
                                                     dataset.Filter_Requirements__c,
+                                                    dataset.Custom_Filters_Logic__c,	
                                                     response);
                 }
 
@@ -213,6 +215,7 @@ public with sharing class ChartComponentHandler {
                                         String recordId,
                                         String datasetId,
                                         String filterRequirement,
+                                        String customFiltersLogic,
                                         ChartComponentHandler.Chart response) {
         // Validating Source Object
         String slct = 'SELECT ';
@@ -234,6 +237,7 @@ public with sharing class ChartComponentHandler {
                                                 recordId,
                                                 datasetId,
                                                 filterRequirement,
+                                                customFiltersLogic,
                                                 response);
                 if(query == null) {
                     return null;
@@ -292,6 +296,7 @@ public with sharing class ChartComponentHandler {
                                                   String recordId,
                                                   String datasetId,
                                                   String filterRequirement,
+                                                  String customFiltersLogic,
                                                   ChartComponentHandler.Chart response) {
         Boolean noFilterApplied = false;
 
@@ -336,6 +341,7 @@ public with sharing class ChartComponentHandler {
                                             query,
                                             datasetId,
                                             filterRequirement,
+                                            customFiltersLogic,
                                             response);
         return query;                                      
     } 
@@ -349,8 +355,10 @@ public with sharing class ChartComponentHandler {
                                                     String query,
                                                     String datasetId,
                                                     String filterRequirement,
+                                                    String customFiltersLogic,
                                                     ChartComponentHandler.Chart response) {
-        List<Chart_Filter__c> filters = [SELECT
+        List<Chart_Filter__c> filtersList = [SELECT
+                                            Name,
                                             Field__c,
                                             Operator__c,
                                             Value__c
@@ -359,50 +367,73 @@ public with sharing class ChartComponentHandler {
                                         WHERE
                                             Dataset__c = :datasetId];
 
-        for(Chart_Filter__c f : filters) {
+        if(filtersList.size() > 0) {
             if(noFilterApplied) {
-                query += ' WHERE ';
+                query += ' WHERE (FILTERS)';
             } else {
-                if(filterRequirement == 'AND' || filterRequirement == 'OR' ) {
-                    query += ' '+filterRequirement+' ';
+                query += ' AND (FILTERS)';
+            }
+
+            Map<String, String> filtersMap = new Map<String, String>();
+            for(Chart_Filter__c f : filtersList) {
+                String filterString;
+
+                if(f.Operator__c == 'LIKE') {
+                    // Adding wildcard % to value
+                    String str = f.Value__c;
+                    String valueWithWildCard = '\'%' + str.substring(1, str.length() - 1) + '%\'';
+    
+                    filterString = String.escapeSingleQuotes(f.Field__c) +' '
+                            + String.escapeSingleQuotes(f.Operator__c) +' '
+                            + valueWithWildCard;
+                
+                } else if(f.Operator__c == 'NOT LIKE') {
+                     // Adding wildcard % to value
+                    String str = f.Value__c;
+                    String valueWithWildCard = '\'%' + str.substring(1, str.length() - 1) + '%\'';
+                     
+                    filterString = '(NOT '
+                            + String.escapeSingleQuotes(f.Field__c) +' '
+                            + 'LIKE '
+                            + valueWithWildCard
+                            + ')';
+    
+                } else {
+                    filterString = String.escapeSingleQuotes(f.Field__c) +' '
+                            + String.escapeSingleQuotes(f.Operator__c) +' '
+                            + f.Value__c;
                 }
+
+                filtersMap.put(f.Name, filterString); 
             }
 
-            if(f.Operator__c == 'LIKE') {
-                // Adding wildcard % to value
-                String str = f.Value__c;
-                String valueWithWildCard = '\'%' + str.substring(1, str.length() - 1) + '%\'';
-
-                query += String.escapeSingleQuotes(f.Field__c) +' '
-                        + String.escapeSingleQuotes(f.Operator__c) +' '
-                        + valueWithWildCard;
+            String filters;
+            // AND, OR
+            if(filterRequirement != 'Custom') {
+                String delimiter = ' '+filterRequirement+' '; 
+                filters = String.join(filtersMap.values(), delimiter); 
             
-            } else if(f.Operator__c == 'NOT LIKE') {
-                 // Adding wildcard % to value
-                 String str = f.Value__c;
-                 String valueWithWildCard = '\'%' + str.substring(1, str.length() - 1) + '%\'';
-                 
-                query += '(NOT '
-                        + String.escapeSingleQuotes(f.Field__c) +' '
-                        + 'LIKE '
-                        + valueWithWildCard
-                        + ')';
-
+            // CUSTOM
             } else {
-                query += String.escapeSingleQuotes(f.Field__c) +' '
-                        + String.escapeSingleQuotes(f.Operator__c) +' '
-                        + f.Value__c;
+                for (String filterName : filtersMap.keySet()) {
+                    customFiltersLogic = customFiltersLogic.replace(filterName, filtersMap.get(filterName));
+                }
+                filters = customFiltersLogic;
             }
-            noFilterApplied = false;
+            query = query.replace('FILTERS', filters);
 
-            if(!tryQuery(query)) {
-                System.debug(query);
-                response.errorMessage = 'The following filter is incorrect. ' + f.Field__c +' '+ f.Operator__c +' '+ f.Value__c + '.';
+            // Testing the query
+            try{
+                Database.Query(query + ' LIMIT 0');
+                return query;
+            }
+            catch(QueryException ex) {
+                System.debug(ex);
+                response.errorMessage = 'Error in compiling Filters: ' + ex.getMessage();
                 return null;
             }
-        }
-
-        return query;
+        }  
+        return query;                                                     
     }
 
     /**
