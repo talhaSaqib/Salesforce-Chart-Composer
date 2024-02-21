@@ -1,8 +1,5 @@
 public with sharing class TriggerOnChartDatasetHandler {
 
-    public TriggerOnChartDatasetHandler() {
-    }
-
     List<Schema.DisplayType> acceptedSourceFieldTypes = new List<Schema.DisplayType> {
         Schema.DisplayType.Integer,
         Schema.DisplayType.Currency,
@@ -33,7 +30,12 @@ public with sharing class TriggerOnChartDatasetHandler {
     public Boolean validateDatasetFields(List<Dataset__c> newRecords) {
 
         for(Dataset__c dataset : newRecords) {
-            if(!dataset.Use_Custom_SOQL__c) {
+            if( !dataset.Use_Custom_SOQL__c ) {
+
+                if( String.isBlank(dataset.Source_Object__c) ) {
+                    dataset.addError('The Source Object cannot be blank if you are using Custom SOQL.');
+                    return false;
+                }
 
                 SObjectType objectType = Schema.getGlobalDescribe().get(dataset.Source_Object__c);
                 Map<String, Schema.SObjectField> fieldsMap = objectType.getDescribe().fields.getMap();
@@ -89,35 +91,38 @@ public with sharing class TriggerOnChartDatasetHandler {
 
     public Boolean validateCustomSOQL(List<Dataset__c> newRecords) {
         for(Dataset__c dataset : newRecords) {
-            if(dataset.Use_Custom_SOQL__c) {
+            if( dataset.Use_Custom_SOQL__c && !String.isBlank(dataset.SOQL__c) ) {
 
-                // Aggregate Methods
                 String query = dataset.SOQL__c.toLowerCase();     
-                String subQuery = query.substringBetween('select', 'from').trim();
+                String subQuery = query.substringBetween('select', 'from')?.trim();
 
-                for(String aggr : aggregateMethods) {
-                    Boolean containsAggregateMethod = Pattern.compile(aggr+'\\(.*\\)').matcher(subQuery).find();
-                    if(containsAggregateMethod) {
-                        dataset.addError('Aggregate Methods are not allowed.');
+                if( subQuery != null ) {
+
+                    // Aggregate Methods
+                    for(String aggr : aggregateMethods) {
+                        Boolean containsAggregateMethod = Pattern.compile(aggr+'\\(.*\\)').matcher(subQuery).find();
+                        if(containsAggregateMethod) {
+                            dataset.addError('Aggregate Methods are not allowed.');
+                        }
+                    }
+
+                    // Sub Query
+                    Boolean containsSubQuery = subQuery.contains('(select ');
+                    if( containsSubQuery ) {
+                        dataset.addError('Subquery is not allowed.');
+                    }
+
+                    // Label, Value
+                    List<String> sourceFieldLabel = subQuery.split(',');
+                    if( sourceFieldLabel.size() != 2 ) {
+                        dataset.addError('Specify only two fields after SELECT. First field will represent Label, second field will represent Value.');
                     }
                 }
 
-                // Sub Query
-                Boolean containsSubQuery = subQuery.contains('(select ');
-                if(containsSubQuery) {
-                    dataset.addError('Subquery is not allowed.');
-                }
-
                 // Security Enforcement
-                if(!query.contains('with security_enforced')) {
+                if( !query.contains('with security_enforced' )) {
                     dataset.addError('\'WITH SECURITY_ENFORCED\' must be present in the custom SOQL.');
-                }
-
-                // Label, Value
-                List<String> sourceFieldLabel = subQuery.split(',');
-                if(sourceFieldLabel.size() != 2) {
-                    dataset.addError('Specify only two fields after SELECT. First field will represent Label, second field will represent Value.');
-                }
+                }        
             }
         }
         return true;

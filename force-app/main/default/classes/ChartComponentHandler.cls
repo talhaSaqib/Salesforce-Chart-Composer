@@ -1,13 +1,19 @@
 /**
- * This file contains all the server-side logic for this project.
+ * This file contains all the server-side logic for this project. As such, the retrieval of Chart related data,
+ * composing SOQL dynamically, verifying the query and sending back a response client side that process the data 
+ * and render chart.
  * 
  * @author Talha Saqib
  * @since 25 November, 2023
  */
 public with sharing class ChartComponentHandler {
 
+    // ============================================    
+    // ==== QUERY COMPOSITION VIA SF OBJECTS ====
+    // ============================================    
+
     /**
-     * The main method that gets all the relevant data required to render the chart.
+     * The main method that gets all the Chart data and makes Chart Response from Datasets.
      * 
      * @param chartId This is not Id field but a custom auto-number field.
      * @param recordId The id of the record on which the component is present. It can be null.
@@ -48,6 +54,9 @@ public with sharing class ChartComponentHandler {
         return JSON.serialize(response);
     }
 
+    /**
+     * This method gets data from Datasets records and compiles the response for client-side.
+     */
     private static void makeResponseFromChartDatasets(  String chartRecordId,
                                                         String relationshipField,
                                                         ChartComponentHandler.Chart response,
@@ -285,7 +294,8 @@ public with sharing class ChartComponentHandler {
     }
 
     /**
-     * This method is a helper method that also composes and validates SOQL query. It handles only Static Filters.
+     * This method is a helper method that also composes and validates SOQL query. It handles only basic Filters that are 
+     * present on Dataset Record and Chart Record.
      * 
      * @return  `String` Returns either a valid SOQL query or null.
      */
@@ -347,7 +357,8 @@ public with sharing class ChartComponentHandler {
     } 
 
     /**
-     * This method is a helper method that also composes and validates SOQL query. It handles only Dynamic Filters.
+     * This method is a helper method that also composes and validates SOQL query. It handles filters that are from
+     * Filter related records.
      * 
      * @return  `String` Returns either a valid SOQL query or null.
      */
@@ -452,6 +463,16 @@ public with sharing class ChartComponentHandler {
         }
     }
 
+
+    // ======================  
+    // ==== CUSTOM SOQL ====
+    // ======================   
+
+    /**
+     * This method validates the Custom SOQL input by user.
+     * 
+     * @return  `String` Returns quert or null depending on the validation.
+     */
     private static String validateCustomSOQL(String SOQL,
                                             String relationField,
                                             String recordIdWhereChartis,
@@ -488,6 +509,13 @@ public with sharing class ChartComponentHandler {
         } 
     }
 
+    /**
+     * This method parses the custom SOQL and extracts the Label and Field. If query has less than or more than 2 fields before FROM, either
+     * the validation fails or the code gives error in other method.
+     * 
+     * @return  `List<String>` Return a list of string with size of 2, containg Label and Field for Chart or Returns null
+     * if parsing fails.
+     */
     private static List<String> extractSoruceFieldAndLabelFromSOQL(String query,
                                                                    ChartComponentHandler.Chart response) {
         query = query.toLowerCase();
@@ -522,6 +550,12 @@ public with sharing class ChartComponentHandler {
           return null;
         }
       }
+
+
+
+    // ======================  
+    // ==== STRUCTS ====
+    // ======================  
 
     /**
      * The structure for the JSON response that will contain all chart data.
