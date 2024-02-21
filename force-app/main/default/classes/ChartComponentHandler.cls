@@ -534,6 +534,14 @@ public with sharing class ChartComponentHandler {
         }
     }
 
+    /**
+     * This method parses relationship query and returns the desired value e.g. it will parese Account.Contact.Id 
+     * and will return 'Id' as value.
+     * 
+     * @param path This will be the complete relationship part e.g. Account.Contact.Id
+     * @return  `Object` Returns dynamic value
+     */
+
     private static Object getValueFromRelationshipQuery(SObject record, String path) {
         try {
             SObject temp = record;
@@ -568,6 +576,9 @@ public with sharing class ChartComponentHandler {
         private List<String> labels;
     }
 
+    /**
+     * The structure for Dataset data that will be included in Chart JSON response.
+     */
     public class Dataset {
         private String chartType;
         private String datasetLabel;
