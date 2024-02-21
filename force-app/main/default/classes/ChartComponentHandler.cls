@@ -202,7 +202,7 @@ public with sharing class ChartComponentHandler {
             }
 
         } else {
-            response.errorMessage = 'No Dataset record found for this Chart. Please make sure that you have at least 1 dataset.';
+            response.errorMessage = 'No Dataset record found for this Chart. Please make sure that you have at least one dataset.';
         }
     }
 
@@ -341,7 +341,7 @@ public with sharing class ChartComponentHandler {
 
             if(!tryQuery(query)) {
                 System.debug(query);
-                response.errorMessage = 'The input for Relationship Field is incorrect or the chart is not placed in a Record Page. Please make sure that '+ relationField +' is a valid API name of the field that exists in the Source Object. ';
+                response.errorMessage = 'The input for Relationship Field is incorrect or the chart is not placed in a Record Page. Please make sure that '+ relationField +' is a valid API name of the field that exists in the Source Object.';
                 return null;
             }
         }
