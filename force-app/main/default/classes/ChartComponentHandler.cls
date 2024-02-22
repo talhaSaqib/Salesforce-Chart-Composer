@@ -94,6 +94,7 @@ public with sharing class ChartComponentHandler {
 
             for(Dataset__c dataset : datasetsList) {
 
+                // Setting basic Dataset values
                 ChartComponentHandler.Dataset tempDataset = new ChartComponentHandler.Dataset();
                 tempDataset.chartType = dataset.Chart_Type__c;
                 tempDataset.datasetLabel = dataset.Dataset_Label__c;
@@ -144,6 +145,7 @@ public with sharing class ChartComponentHandler {
                     String sourceLabel;
                     String sourceField;
                 
+                    // For Custom SOQL Field and Label are extracted differently
                     if(dataset.Use_Custom_SOQL__c) {
                         List<String> sourceFieldLabel = extractSoruceFieldAndLabelFromSOQL(query, response);
                         if(sourceFieldLabel == null) {
@@ -151,6 +153,8 @@ public with sharing class ChartComponentHandler {
                         }
                         sourceLabel = sourceFieldLabel[0];
                         sourceField = sourceFieldLabel[1];
+                    
+                    // For non-custom SOQL 
                     } else {
                         sourceLabel = dataset.Source_Label__c;
                         sourceField = dataset.Source_Field__c;
@@ -161,6 +165,7 @@ public with sharing class ChartComponentHandler {
                             String label;
                             Object dataValue;
 
+                            // Handling Relationship Values like: Account.Contact.Id 
                             if(sourceLabel.contains('.')) {
                                 label = (String) getValueFromRelationshipQuery(record, sourceLabel);
                             } else {
@@ -346,7 +351,7 @@ public with sharing class ChartComponentHandler {
             }
         }
 
-        // Validatiion with Dynamic Filters
+        // Validation with Dynamic Filters
         query = getFiltersAndValidateQuery(noFilterApplied,
                                             query,
                                             datasetId,
@@ -426,6 +431,8 @@ public with sharing class ChartComponentHandler {
             
             // CUSTOM
             } else {
+
+                // Replacing Filter Names with actial Query Files
                 for (String filterName : filtersMap.keySet()) {
                     customFiltersLogic = customFiltersLogic.replace(filterName, filtersMap.get(filterName));
                 }
@@ -481,14 +488,16 @@ public with sharing class ChartComponentHandler {
         String query = SOQL.toLowerCase();                                        
         if(!String.isBlank(relationField)) {
 
+            // Custom SOQL will always have WITH SECURITY_ENFORCED
             String separator;
-
             if(query.contains(' with ')) {
                 separator = 'with';
             } 
+
             String queryBefore = query.substringBefore(separator);
             String queryAfter = query.substringAfter(separator);
 
+            // Adding Relation Field on Chart record
             if(queryBefore.contains(' where ')) {
                 queryBefore += ' and ' + relationField + '= \'' + recordIdWhereChartis + '\'';
             } else {
@@ -520,9 +529,11 @@ public with sharing class ChartComponentHandler {
                                                                    ChartComponentHandler.Chart response) {
         query = query.toLowerCase();
         query = query.substringBetween('select', 'from');
-        List<String> sourceFieldLabel = query.split(',', 2);
 
+        // Only 2 Field attributes are allowed between SELECT and FROM.
+        List<String> sourceFieldLabel = query.split(',', 2);
         List<String> returnList = new List<String>();
+
         try{
             returnList.add(sourceFieldLabel[0].trim());
             returnList.add(sourceFieldLabel[1].trim());
@@ -541,13 +552,12 @@ public with sharing class ChartComponentHandler {
      * @param path This will be the complete relationship part e.g. Account.Contact.Id
      * @return  `Object` Returns dynamic value
      */
-
     private static Object getValueFromRelationshipQuery(SObject record, String path) {
         try {
             SObject temp = record;
             String[] parts = path.split('\\.');
 
-            while(parts.size() > 1) {
+            while( parts.size() > 1 ) {
                 // Used to retrieve a related SObject from a parent SObject based on a specified relationship name.
                 temp = temp.getSObject(parts.remove(0));
             }

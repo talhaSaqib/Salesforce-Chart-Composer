@@ -27,6 +27,16 @@ public with sharing class TriggerOnChartDatasetHandler {
         'fields'
     };
 
+    /**
+     * This method validates multiple Dataset Fields like:
+     * - Source Object
+     * - Source Field
+     * - Source Label
+     * - Sort By
+     * These field must belong to Source Object and should be of allowed data type.
+     * 
+     * @return  `Boolean` Return true if all validations succeed otherwise false.
+     */
     public Boolean validateDatasetFields(List<Dataset__c> newRecords) {
 
         for(Dataset__c dataset : newRecords) {
@@ -80,7 +90,7 @@ public with sharing class TriggerOnChartDatasetHandler {
                     return false;
 
                 } else if ( !sortByIsBlank &&
-                        !sortByExists ) {
+                            !sortByExists ) {
                     dataset.addError('The Source By field ('+dataset.Sort_By__c+') does not belong to the Source Object: '+ dataset.Source_Object__c);
                     return false;
                 }
@@ -89,8 +99,15 @@ public with sharing class TriggerOnChartDatasetHandler {
         return true;
     }
 
+    /**
+     * This method validates Custom SQOL for things like Sub Query, Aggregate Methods, Security etc.
+     * 
+     * @return  `Boolean` Return true if all validations succeed otherwise false.
+     */
     public Boolean validateCustomSOQL(List<Dataset__c> newRecords) {
+
         for(Dataset__c dataset : newRecords) {
+
             if( dataset.Use_Custom_SOQL__c && !String.isBlank(dataset.SOQL__c) ) {
 
                 String query = dataset.SOQL__c.toLowerCase();     
