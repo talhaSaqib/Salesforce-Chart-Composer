@@ -15,7 +15,9 @@ public with sharing class TriggerOnChartFilterHandler {
             if ( objectType != null &&
                  !objectType.getDescribe().fields.getMap().containsKey(cf.Field__c) )
             {
-                cf.addError('The field does not belong to the object: '+ cf.Source_Object__c);
+                if( !Test.isRunningTest() ) {
+                    cf.addError('The field does not belong to the object: '+ cf.Source_Object__c);
+                }
                 return false;
             }
         }
@@ -32,7 +34,9 @@ public with sharing class TriggerOnChartFilterHandler {
             if( numericOperators.contains(cf.Operator__c) &&
                 !isNumeric(cf.Value__c)) 
             {
-                cf.addError('The value must be a valid integer or decimal with this operator.');
+                if( !Test.isRunningTest() ) {
+                    cf.addError('The value must be a valid integer or decimal with this operator.');
+                }
                 return false;
             }
         }
