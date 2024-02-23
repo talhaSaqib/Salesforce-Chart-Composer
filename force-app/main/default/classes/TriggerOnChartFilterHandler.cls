@@ -30,12 +30,33 @@ public with sharing class TriggerOnChartFilterHandler {
         for(Chart_Filter__c cf : newRecords) {
 
             if( numericOperators.contains(cf.Operator__c) &&
-                !cf.Value__c.isNumeric()) 
+                !isNumeric(cf.Value__c)) 
             {
-                cf.addError('The value must be a number with this operator.');
+                cf.addError('The value must be a valid integer or decimal with this operator.');
                 return false;
             }
         }
         return true;
+    }
+
+    // ======================  
+    // ==== HELPER ====
+    // ======================  
+
+    /**
+     * This method also check for Decimal number as standard isNumeric doesn't check it. 
+     * 
+     * @return  `Boolean` Returns true if string repersents an interger or decimal.
+     */
+    public static Boolean isNumeric(String str) {
+        if (str == null || String.isBlank(str)) {
+            return false;
+        }
+        
+        // Regular expression to match numeric values, including decimal numbers
+        // This pattern matches an optional negative sign followed by one or more digits, optionally followed by a decimal point and one or more digits
+        Pattern pattern = Pattern.compile('^-?\\d*\\.?\\d+$');
+        Matcher matcher = pattern.matcher(str);
+        return matcher.matches();
     }
 }

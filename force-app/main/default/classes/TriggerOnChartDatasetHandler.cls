@@ -43,11 +43,16 @@ public with sharing class TriggerOnChartDatasetHandler {
             if( !dataset.Use_Custom_SOQL__c ) {
 
                 if( String.isBlank(dataset.Source_Object__c) ) {
-                    dataset.addError('The Source Object cannot be blank if you are using Custom SOQL.');
+                    dataset.addError('The Source Object cannot be blank if you are not using Custom SOQL.');
                     return false;
                 }
 
                 SObjectType objectType = Schema.getGlobalDescribe().get(dataset.Source_Object__c);
+                if ( objectType == null ) {
+                    dataset.addError('The Source Object does not exist: '+ dataset.Source_Object__c);
+                    return false;
+                }
+                
                 Map<String, Schema.SObjectField> fieldsMap = objectType.getDescribe().fields.getMap();
                 Schema.DisplayType sourceFieldType = null;
                 Schema.DisplayType sourceLabelType = null;
@@ -67,11 +72,9 @@ public with sharing class TriggerOnChartDatasetHandler {
                     sourceLabelType = fieldsMap.get(dataset.Source_Label__c).getDescribe().getType();
                 }
 
-                if ( objectType == null ) {
-                    dataset.addError('The Source Object does not exist: '+ dataset.Source_Object__c);
-                    return false;
+               
 
-                } else if ( !sourceFieldExists ) {
+                if ( !sourceFieldExists ) {
                     dataset.addError('The Source Field ('+dataset.Source_Field__c+') does not belong to the Source Object: '+ dataset.Source_Object__c);
                     return false;
 
