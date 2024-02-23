@@ -137,8 +137,13 @@ public with sharing class TriggerOnChartDatasetHandler {
                 }
 
                 // Security Enforcement
-                if( !query.contains('with security_enforced' )) {
+                if( !query.contains( 'with security_enforced' )) {
                     dataset.addError('\'WITH SECURITY_ENFORCED\' must be present in the custom SOQL.');
+                }  
+
+                // Limit
+                if( !query.contains(' limit ' )) {
+                    dataset.addError('\'LIMIT\' must be present in the custom SOQL.');
                 }        
             }
         }

@@ -275,15 +275,13 @@ public with sharing class ChartComponentHandler {
                 }
 
                 // Validating Limit
-                if(recordsLimit != null) {
-                    if(recordsLimit < 0) {
-                        response.errorMessage = 'The records limit should not be less than 0.';
-                        return null;
-                    } else {
-                        query += ' LIMIT ' + recordsLimit;
-                    }
+                if(recordsLimit < 0 || recordsLimit > 500000) {
+                    response.errorMessage = 'The records limit should be between 0 and 500000.';
+                    return null;
+                } else {
+                    query += ' LIMIT ' + recordsLimit;
                 }
-               
+            
                 return query;
 
             } else {
