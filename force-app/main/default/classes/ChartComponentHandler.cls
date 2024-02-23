@@ -135,8 +135,8 @@ public with sharing class ChartComponentHandler {
                 if(query != null) {
 
                     // Parsing the records and segregating the data and labels.
-                    List<sObject> recordsList = Database.Query(query);
                     System.debug(query);
+                    List<sObject> recordsList = Database.Query(query);
                     System.debug('Query Results = ' + recordsList);
 
                     List<String> labels = new List<String>();
@@ -275,9 +275,14 @@ public with sharing class ChartComponentHandler {
                 }
 
                 // Validating Limit
-                if(recordsLimit < 0 || recordsLimit > 500000) {
+                if(recordsLimit == null) {
+                    response.errorMessage = 'The records limit cannot be null.';
+                    return null;
+
+                } else if(recordsLimit < 0 || recordsLimit > 500000) {
                     response.errorMessage = 'The records limit should be between 0 and 500000.';
                     return null;
+
                 } else {
                     query += ' LIMIT ' + recordsLimit;
                 }
