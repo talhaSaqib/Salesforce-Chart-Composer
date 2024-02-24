@@ -4,7 +4,6 @@ trigger TriggerOnChartFilter on Chart_Filter__c (before insert, before update) {
     if(Trigger.isBefore)
     {
         handler.validateFilterField(Trigger.new);
-        handler.validateFilterValue(Trigger.new);
     }
     
 }

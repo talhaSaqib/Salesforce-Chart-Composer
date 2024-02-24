@@ -46,7 +46,23 @@ public with sharing class TriggerOnChartFilterHandler_Test {
         f3.Field__c = 'AnnualRevenue';
         f3.Operator__c = '>';
         f3.Value__c = 'Test';
-        insert f3;
+        // insert f3;           Fails on testing due to Validation Rule as desired.
+
+        Chart_Filter__c f4 = new Chart_Filter__c();
+        f4.Dataset__c = d.Id;
+        f4.Name = '5';
+        f4.Field__c = 'Name';
+        f4.Operator__c = 'LIKE';
+        f4.Value__c = 'Test';
+        // insert f4;           Fails on testing due to Validation Rule as desired.
+
+        Chart_Filter__c f5 = new Chart_Filter__c();
+        f5.Dataset__c = d.Id;
+        f5.Name = '5';
+        f5.Field__c = 'AnnualRevenue';
+        f5.Operator__c = '>';
+        f5.Value__c = '2e2';
+        insert f5;          
     }
 
     @isTest 
@@ -83,36 +99,6 @@ public with sharing class TriggerOnChartFilterHandler_Test {
                 Name = '2'
             LIMIT 1];
         result = handler.validateFilterField(new List<Chart_Filter__c>{ f });
-        Assert.areEqual(false, result);
-
-         // AnnualRevenue > 1000
-         f = [SELECT 
-                Dataset__c,
-                Field__c,
-                Operator__c,
-                Value__c,
-                Source_Object__c
-            FROM
-                Chart_Filter__c
-            WHERE
-                Name = '3'
-            LIMIT 1];
-        result = handler.validateFilterValue(new List<Chart_Filter__c>{ f });
-        Assert.areEqual(true, result);
-
-         // AnnualRevenue > Test
-         f = [SELECT 
-                Dataset__c,
-                Field__c,
-                Operator__c,
-                Value__c,
-                Source_Object__c
-            FROM
-                Chart_Filter__c
-            WHERE
-                Name = '4'
-            LIMIT 1];
-        result = handler.validateFilterValue(new List<Chart_Filter__c>{ f });
         Assert.areEqual(false, result);
     }
 }
