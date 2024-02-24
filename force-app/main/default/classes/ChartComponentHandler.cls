@@ -165,18 +165,8 @@ public with sharing class ChartComponentHandler {
                             String label;
                             Object dataValue;
 
-                            // Handling Relationship Values like: Account.Contact.Id 
-                            if(sourceLabel.contains('.')) {
-                                label = (String) getValueFromRelationshipQuery(record, sourceLabel);
-                            } else {
-                                label = (String) record.get(sourceLabel);
-                            }
-
-                            if(sourceField.contains('.')) {
-                                dataValue = getValueFromRelationshipQuery(record, sourceField);
-                            } else {
-                                dataValue = record.get(sourceField);
-                            }
+                            label = (String) getValueFromRelationshipQuery(record, sourceLabel);
+                            dataValue = getValueFromRelationshipQuery(record, sourceField);
         
                             // Collecting Label Values
                             if(String.isBlank(label)) {
@@ -338,7 +328,7 @@ public with sharing class ChartComponentHandler {
         }
 
         // Validating Relationship Field
-        if(!String.isBlank(relationField)) {
+        if(!String.isBlank(relationField) && !String.isBlank(recordId)) {
             if(noFilterApplied) {
                 query += ' WHERE ';
             } else {

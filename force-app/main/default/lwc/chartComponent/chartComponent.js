@@ -45,9 +45,6 @@ export default class GraphLWC extends LightningElement {
         );
     }
 
-    /**
-     * This method retrieves all necessary data from server required for Chart rendering.
-     */
     async getChartProperties() {
         await getChartData({ chartId: this.chartId,
                              recordId: this.recordId })
