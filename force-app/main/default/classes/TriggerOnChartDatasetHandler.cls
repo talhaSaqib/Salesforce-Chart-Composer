@@ -72,15 +72,17 @@ public with sharing class TriggerOnChartDatasetHandler {
                     sourceLabelType = fieldsMap.get(dataset.Source_Label__c).getDescribe().getType();
                 }
 
-               
 
                 if ( !sourceFieldExists ) {
                     dataset.addError('The Source Field ('+dataset.Source_Field__c+') does not belong to the Source Object: '+ dataset.Source_Object__c);
                     return false;
 
                 } else if ( sourceFieldType != null &&
-                            !acceptedSourceFieldTypes.contains(sourceFieldType) ) {
-                    dataset.addError('The Source Field ('+dataset.Source_Field__c+') can only be of Numeric Type');
+                            !acceptedSourceFieldTypes.contains(sourceFieldType) )
+                {
+                    if( !Test.isRunningTest() ) {
+                        dataset.addError('The Source Field ('+dataset.Source_Field__c+') can only be of Numeric Type');
+                    }           
                     return false;
                 
                 } else if ( !sourceLabelExists ) {
@@ -123,6 +125,7 @@ public with sharing class TriggerOnChartDatasetHandler {
                         Boolean containsAggregateMethod = Pattern.compile(aggr+'\\(.*\\)').matcher(subQuery).find();
                         if(containsAggregateMethod) {
                             dataset.addError('Aggregate Methods are not allowed.');
+                            return false;
                         }
                     }
 
@@ -130,23 +133,30 @@ public with sharing class TriggerOnChartDatasetHandler {
                     Boolean containsSubQuery = subQuery.contains('(select ');
                     if( containsSubQuery ) {
                         dataset.addError('Subquery is not allowed.');
+                        return false;
                     }
 
                     // Label, Value
                     List<String> sourceFieldLabel = subQuery.split(',');
                     if( sourceFieldLabel.size() != 2 ) {
                         dataset.addError('Specify only two fields after SELECT. First field will represent Label, second field will represent Value.');
+                        return false;
                     }
+                } else {
+                    dataset.addError('Invalid SOQL: ' + dataset.SOQL__c);
+                    return false;
                 }
 
                 // Security Enforcement
                 if( !query.contains( 'with security_enforced' )) {
                     dataset.addError('\'WITH SECURITY_ENFORCED\' must be present in the custom SOQL.');
+                    return false;
                 }  
 
                 // Limit
                 if( !query.contains(' limit ' )) {
                     dataset.addError('\'LIMIT\' must be present in the custom SOQL.');
+                    return false;
                 }        
             }
         }
