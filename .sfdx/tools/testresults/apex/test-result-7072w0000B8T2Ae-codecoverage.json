@@ -1,0 +1,169 @@
+[
+  [
+    {
+      "apexClassOrTriggerName": "TriggerOnChartFilter",
+      "apexClassOrTriggerId": "01q2w0000018Ws4AAE",
+      "apexTestClassId": "01p2w00000iylcEAAQ",
+      "apexTestMethodName": "validateFilterField",
+      "numLinesCovered": 3,
+      "numLinesUncovered": 0,
+      "percentage": "100%",
+      "coverage": {
+        "coveredLines": [
+          2,
+          4,
+          6
+        ],
+        "uncoveredLines": []
+      }
+    },
+    {
+      "apexClassOrTriggerName": "TriggerOnChartFilterHandler",
+      "apexClassOrTriggerId": "01p2w00000iyafaAAA",
+      "apexTestClassId": "01p2w00000iylcEAAQ",
+      "apexTestMethodName": "validateFilterField",
+      "numLinesCovered": 7,
+      "numLinesUncovered": 1,
+      "percentage": "88%",
+      "coverage": {
+        "coveredLines": [
+          6,
+          8,
+          10,
+          12,
+          14,
+          17,
+          20
+        ],
+        "uncoveredLines": [
+          15
+        ]
+      }
+    },
+    {
+      "apexClassOrTriggerName": "TriggerOnChartDatasetHandler",
+      "apexClassOrTriggerId": "01p2w00000iybShAAI",
+      "apexTestClassId": "01p2w00000iylcEAAQ",
+      "apexTestMethodName": "validateFilterField",
+      "numLinesCovered": 51,
+      "numLinesUncovered": 41,
+      "percentage": "55%",
+      "coverage": {
+        "coveredLines": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          40,
+          42,
+          43,
+          45,
+          50,
+          51,
+          56,
+          57,
+          58,
+          60,
+          61,
+          62,
+          63,
+          65,
+          68,
+          69,
+          71,
+          72,
+          76,
+          80,
+          81,
+          88,
+          92,
+          93,
+          97,
+          104,
+          112,
+          114,
+          116,
+          163
+        ],
+        "uncoveredLines": [
+          46,
+          47,
+          52,
+          53,
+          66,
+          77,
+          78,
+          83,
+          84,
+          86,
+          89,
+          90,
+          94,
+          95,
+          98,
+          99,
+          100,
+          118,
+          119,
+          121,
+          124,
+          125,
+          126,
+          127,
+          128,
+          133,
+          134,
+          135,
+          136,
+          140,
+          141,
+          142,
+          143,
+          146,
+          147,
+          151,
+          152,
+          153,
+          157,
+          158,
+          159
+        ]
+      }
+    },
+    {
+      "apexClassOrTriggerName": "TriggerOnChartDataset",
+      "apexClassOrTriggerId": "01q2w0000018WsOAAU",
+      "apexTestClassId": "01p2w00000iylcEAAQ",
+      "apexTestMethodName": "validateFilterField",
+      "numLinesCovered": 4,
+      "numLinesUncovered": 0,
+      "percentage": "100%",
+      "coverage": {
+        "coveredLines": [
+          2,
+          4,
+          6,
+          7
+        ],
+        "uncoveredLines": []
+      }
+    }
+  ]
+]

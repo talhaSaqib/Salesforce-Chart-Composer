@@ -1,0 +1,30 @@
+[
+  [
+    {
+      "apexClassOrTriggerName": "TriggerOnChartFilterHandler",
+      "apexClassOrTriggerId": "01p2w00000iyafaAAA",
+      "apexTestClassId": "01p2w00000iylcEAAQ",
+      "apexTestMethodName": "validateFilterField",
+      "numLinesCovered": 7,
+      "numLinesUncovered": 4,
+      "percentage": "64%",
+      "coverage": {
+        "coveredLines": [
+          3,
+          4,
+          9,
+          11,
+          13,
+          15,
+          24
+        ],
+        "uncoveredLines": [
+          16,
+          18,
+          19,
+          21
+        ]
+      }
+    }
+  ]
+]
