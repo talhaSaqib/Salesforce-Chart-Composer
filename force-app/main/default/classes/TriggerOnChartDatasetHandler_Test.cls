@@ -106,5 +106,23 @@ public with sharing class TriggerOnChartDatasetHandler_Test {
         d7.SOQL__c = 'Select id, (Select id from Contact) From Account';
         result = handler.ValidateCustomSOQL(new List<Dataset__c>{ d7 });
         Assert.areEqual(false, result);
+
+        Dataset__c d8 =  new Dataset__c();
+        d8.Chart__c = c.Id;
+        d8.Dataset_Label__c = 'Test';
+        d8.Chart_Type__c = 'bar';
+        d8.Use_Custom_SOQL__c = true;
+        d8.SOQL__c = 'Select Name label , Count(id) value From Account group by Name with security_enforced limit 10';
+        result = handler.ValidateCustomSOQL(new List<Dataset__c>{ d8 });
+        Assert.areEqual(true, result);
+
+        Dataset__c d9 =  new Dataset__c();
+        d9.Chart__c = c.Id;
+        d9.Dataset_Label__c = 'Test';
+        d9.Chart_Type__c = 'bar';
+        d9.Use_Custom_SOQL__c = true;
+        d9.SOQL__c = 'Select Max(id) From Account with security_enforced limit 10';
+        result = handler.ValidateCustomSOQL(new List<Dataset__c>{ d9 });
+        Assert.areEqual(false, result);
     }
 }
