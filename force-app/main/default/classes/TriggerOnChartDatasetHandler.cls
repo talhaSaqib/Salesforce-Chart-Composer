@@ -116,15 +116,34 @@ public with sharing class TriggerOnChartDatasetHandler {
             if( dataset.Use_Custom_SOQL__c && !String.isBlank(dataset.SOQL__c) ) {
 
                 String query = dataset.SOQL__c.toLowerCase();     
-                String subQuery = query.substringBetween('select', 'from')?.trim();
+                String subQuery = query.substringBetween('select', 'from');
 
                 if( subQuery != null ) {
 
-                    // Aggregate Methods
+                    // Check if Custo SOQL contains Aggregate methods
+                    Boolean containsAggregateMethod;
                     for(String aggr : aggregateMethods) {
-                        Boolean containsAggregateMethod = Pattern.compile(aggr+'\\(.*\\)').matcher(subQuery).find();
+                        containsAggregateMethod = Pattern.compile(aggr+'\\(.*\\)').matcher(subQuery).find();
                         if(containsAggregateMethod) {
-                            dataset.addError('Aggregate Methods are not allowed.');
+                            break;
+                        }
+                    }
+                    if(containsAggregateMethod) {
+
+                        if(!subQuery.contains(' label ')) {
+                            dataset.addError('The SOQL with Aggregate Methods must use aliasing: \' label \' (including spaces).');
+                            return false;
+                        
+                        } else if(!subQuery.contains(' value ')) {
+                            dataset.addError('The SOQL with Aggregate Methods must use aliasing: \' value \' (including spaces).');
+                            return false;
+                        
+                        } else if(subQuery.indexOf('value') < subQuery.indexOf('label')) {
+                            dataset.addError('The \' label \' alias must come before \' value \' alias.');
+                            return false;
+                        
+                        } else if(!query.contains(' group by ')) {
+                            dataset.addError('The Query with Aggregate methods must use GROUP BY.');
                             return false;
                         }
                     }
@@ -157,7 +176,8 @@ public with sharing class TriggerOnChartDatasetHandler {
                 if( !query.contains(' limit ' )) {
                     dataset.addError('\'LIMIT\' must be present in the custom SOQL.');
                     return false;
-                }        
+                }  
+                
             }
         }
         return true;

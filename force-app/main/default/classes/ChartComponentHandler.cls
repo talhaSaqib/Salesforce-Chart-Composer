@@ -503,12 +503,12 @@ public with sharing class ChartComponentHandler {
         try{
             Database.Query(query);
             return query;
-        }
-        catch(Exception ex) {
+    
+        } catch(Exception ex) {
             System.debug(ex);
             response.errorMessage = 'Custom SOQL ('+ query +') is invalid. Error: ' + ex.getMessage();
             return null;
-        } 
+        }  
     }
 
     /**
@@ -528,8 +528,7 @@ public with sharing class ChartComponentHandler {
         List<String> returnList = new List<String>();
 
         try{
-            returnList.add(sourceFieldLabel[0].trim());
-            returnList.add(sourceFieldLabel[1].trim());
+            returnList = handleQueryFieldValueExtraction(sourceFieldLabel);
             return returnList;
 
         } catch(Exception ex) {
@@ -537,6 +536,33 @@ public with sharing class ChartComponentHandler {
             return null;
         }
     }
+
+    /**
+     * This method handles the extraction of Source Field and Source Label from query (both regular and aggregate).
+     * 
+     * @param fieldAndLabel The list that comes from splitting the query between SELECT and FROM by comma (,). It
+     * should have only 2 entries: Label and Field
+     * 
+     * @return  `List<String>` This contains the actual text for Label and Field. Should be two entries.
+     */
+    private static List<String> handleQueryFieldValueExtraction(List<String> fieldAndLabel) {
+
+        List<String> sourceFieldLabel = new List<String>();
+        for(String str : fieldAndLabel) {
+
+            if(str.contains('label')) {
+                sourceFieldLabel.add('label');
+
+            } else if(str.contains('value')) {
+                sourceFieldLabel.add('value');
+            
+            } else {
+                 sourceFieldLabel.add(str.trim());
+            }
+        }
+        return sourceFieldLabel;
+    }
+
 
     /**
      * This method parses relationship query and returns the desired value e.g. it will parese Account.Contact.Id 
