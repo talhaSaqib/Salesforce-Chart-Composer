@@ -1,3 +1,6 @@
+/**
+ * @author Talha Saqib
+ */
 public with sharing class TriggerOnChartFilterHandler {
 
     /**

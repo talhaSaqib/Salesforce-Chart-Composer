@@ -1,3 +1,6 @@
+/**
+ * @author Talha Saqib
+ */
 public with sharing class TriggerOnChartDatasetHandler {
 
     List<Schema.DisplayType> acceptedSourceFieldTypes = new List<Schema.DisplayType> {
