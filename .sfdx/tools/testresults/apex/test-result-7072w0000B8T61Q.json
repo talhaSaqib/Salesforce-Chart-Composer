@@ -1,0 +1,107 @@
+{
+  "summary": {
+    "outcome": "Failed",
+    "testsRan": 1,
+    "passing": 0,
+    "failing": 1,
+    "skipped": 0,
+    "passRate": "0%",
+    "failRate": "100%",
+    "skipRate": "0%",
+    "testStartTime": "2024-02-24T14:50:55.000Z",
+    "testExecutionTimeInMs": 515,
+    "testTotalTimeInMs": 515,
+    "commandTimeInMs": 1232,
+    "hostname": "https://talhasaqib-dev-ed.my.salesforce.com",
+    "orgId": "00D2w00000EO95kEAD",
+    "username": "tsaqib8373@gmail.com",
+    "testRunId": "7072w0000B8T61Q",
+    "userId": "0052w0000079M47AAE",
+    "totalLines": 11,
+    "coveredLines": 7,
+    "testRunCoverage": "64%",
+    "orgWideCoverage": "15%"
+  },
+  "tests": [
+    {
+      "id": "07M2w000005U7ieEAC",
+      "queueItemId": "7092w00000163cSAAQ",
+      "stackTrace": "Class.TriggerOnChartFilterHandler_Test.validateFilterField: line 42, column 1",
+      "message": "System.AssertException: Assertion Failed: Expected: false, Actual: true",
+      "asyncApexJobId": "7072w0000B8T61QAQS",
+      "methodName": "validateFilterField",
+      "outcome": "Fail",
+      "apexLogId": null,
+      "apexClass": {
+        "id": "01p2w00000iylcEAAQ",
+        "name": "TriggerOnChartFilterHandler_Test",
+        "namespacePrefix": null,
+        "fullName": "TriggerOnChartFilterHandler_Test"
+      },
+      "runTime": 515,
+      "testTimestamp": "2024-02-24T14:50:55.000+0000",
+      "fullName": "TriggerOnChartFilterHandler_Test.validateFilterField",
+      "diagnostic": {
+        "exceptionMessage": "System.AssertException: Assertion Failed: Expected: false, Actual: true",
+        "exceptionStackTrace": "Class.TriggerOnChartFilterHandler_Test.validateFilterField: line 42, column 1",
+        "className": "TriggerOnChartFilterHandler_Test",
+        "compileProblem": "",
+        "lineNumber": 42,
+        "columnNumber": 1
+      },
+      "perClassCoverage": [
+        {
+          "apexClassOrTriggerName": "TriggerOnChartFilterHandler",
+          "apexClassOrTriggerId": "01p2w00000iyafaAAA",
+          "apexTestClassId": "01p2w00000iylcEAAQ",
+          "apexTestMethodName": "validateFilterField",
+          "numLinesCovered": 7,
+          "numLinesUncovered": 4,
+          "percentage": "64%",
+          "coverage": {
+            "coveredLines": [
+              3,
+              4,
+              9,
+              11,
+              13,
+              15,
+              24
+            ],
+            "uncoveredLines": [
+              16,
+              18,
+              19,
+              21
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "codecoverage": [
+    {
+      "apexId": "01p2w00000iyafaAAA",
+      "name": "TriggerOnChartFilterHandler",
+      "type": "ApexClass",
+      "numLinesCovered": 7,
+      "numLinesUncovered": 4,
+      "percentage": "64%",
+      "coveredLines": [
+        3,
+        4,
+        9,
+        11,
+        13,
+        15,
+        24
+      ],
+      "uncoveredLines": [
+        16,
+        18,
+        19,
+        21
+      ]
+    }
+  ]
+}

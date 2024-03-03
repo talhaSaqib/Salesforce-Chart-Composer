@@ -1,0 +1,55 @@
+{
+  "summary": {
+    "outcome": "Failed",
+    "testsRan": 1,
+    "passing": 0,
+    "failing": 1,
+    "skipped": 0,
+    "passRate": "0%",
+    "failRate": "100%",
+    "skipRate": "0%",
+    "testStartTime": "2024-02-24T12:50:05.000Z",
+    "testExecutionTimeInMs": 0,
+    "testTotalTimeInMs": 0,
+    "commandTimeInMs": 925,
+    "hostname": "https://talhasaqib-dev-ed.my.salesforce.com",
+    "orgId": "00D2w00000EO95kEAD",
+    "username": "tsaqib8373@gmail.com",
+    "testRunId": "7072w0000B8SyzB",
+    "userId": "0052w0000079M47AAE",
+    "totalLines": 0,
+    "coveredLines": 0,
+    "testRunCoverage": "0%",
+    "orgWideCoverage": "16%"
+  },
+  "tests": [
+    {
+      "id": "07M2w000005U7fQEAS",
+      "queueItemId": "7092w00000163b0AAA",
+      "stackTrace": "Class.TriggerOnChartDatasetHandler_Test.makeData: line 26, column 1",
+      "message": "System.DmlException: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, The Source Field (Name) can only be of Numeric Type: []",
+      "asyncApexJobId": "7072w0000B8SyzBAQS",
+      "methodName": "testValidateDatasetFields",
+      "outcome": "Fail",
+      "apexLogId": null,
+      "apexClass": {
+        "id": "01p2w00000iylcJAAQ",
+        "name": "TriggerOnChartDatasetHandler_Test",
+        "namespacePrefix": null,
+        "fullName": "TriggerOnChartDatasetHandler_Test"
+      },
+      "runTime": 0,
+      "testTimestamp": "2024-02-24T12:50:06.000+0000",
+      "fullName": "TriggerOnChartDatasetHandler_Test.testValidateDatasetFields",
+      "diagnostic": {
+        "exceptionMessage": "System.DmlException: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, The Source Field (Name) can only be of Numeric Type: []",
+        "exceptionStackTrace": "Class.TriggerOnChartDatasetHandler_Test.makeData: line 26, column 1",
+        "className": "TriggerOnChartDatasetHandler_Test",
+        "compileProblem": "",
+        "lineNumber": 26,
+        "columnNumber": 1
+      }
+    }
+  ],
+  "codecoverage": []
+}

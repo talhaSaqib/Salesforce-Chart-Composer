@@ -11,9 +11,11 @@ export default class GraphLWC extends LightningElement {
     @api recordId;
     @api chartId;
 
-    chart; // Chart Instance
+    chart; 
     chartTitle;
-    chartProperties; // All of the chart data
+    linkTochartRecordId;
+    chartProperties;
+    chartDatasets;
     errorMessage;
 
     async connectedCallback() {
@@ -43,16 +45,14 @@ export default class GraphLWC extends LightningElement {
         );
     }
 
-    /**
-     * This method retrieves all necessary data from server required for Chart rendering.
-     */
     async getChartProperties() {
         await getChartData({ chartId: this.chartId,
-                             recordId: this.recordId })
+                             recordIdWhereChartIs: this.recordId })
         .then((result) => {
             result = JSON.parse(result);
             console.log('Response from Server: ', result);
             this.chartTitle = result.chartTitle;
+            this.linkTochartRecordId = "\\"+ result.chartRecordId;
             
             if(result.errorMessage == null) {
                 this.chartProperties = result;
@@ -66,28 +66,37 @@ export default class GraphLWC extends LightningElement {
         });
     }
 
+    processDatasets() {
+        this.chartDatasets = [];
+        for(var dataset of this.chartProperties.datasets) {
+            var tempDataset = {
+                type: dataset.chartType, 
+                label: dataset.datasetLabel,
+                data: dataset.data,
+                
+                backgroundColor: dataset.backgroundColor,
+                borderColor: dataset.borderColor,
+                borderWidth: dataset.borderWidth
+            }
+            this.chartDatasets.push(tempDataset);
+        }
+    }
+
     initializeChart() {
         if(this.chartProperties != null) {
-            
+
+            // Compile array of datasets for chart
+            this.processDatasets();
+
             // Getting canvas from HTML
             const canvas = this.template.querySelector('[data-id="chartCanvas"]');
             const ctx = canvas.getContext('2d');
 
             // Rendering Chart
             this.chart = new window.Chart(ctx, {
-                type: this.chartProperties.chartType, 
                 data: {
                     labels: this.chartProperties.labels,
-
-                    // Array of datasets
-                    datasets: [{
-                        label: this.chartProperties.datasetLabel,
-                        data: this.chartProperties.dataset,
-                        
-                        backgroundColor: this.chartProperties.backgroundColor,
-                        borderColor: this.chartProperties.borderColor,
-                        borderWidth: this.chartProperties.borderWidth
-                    }]
+                    datasets: this.chartDatasets
                 },
                 options: {
                     // if 'true', this option gives 'ResizeObserver' error so manual responsive is
