@@ -383,6 +383,7 @@ public with sharing class ChartComponentHandler {
                 query += ' AND (FILTERS)';
             }
 
+            // Making Filters strings
             Map<String, String> filtersMap = new Map<String, String>();
             for(Chart_Filter__c f : filtersList) {
                 String filterString;
@@ -416,8 +417,9 @@ public with sharing class ChartComponentHandler {
                 filtersMap.put(f.Name, filterString); 
             }
 
-            String filters;
+            // Combining Filters
             // AND, OR
+            String filters;
             if(filterRequirement != 'Custom') {
                 String delimiter = ' '+filterRequirement+' '; 
                 filters = String.join(filtersMap.values(), delimiter); 
@@ -425,9 +427,13 @@ public with sharing class ChartComponentHandler {
             // CUSTOM
             } else {
 
-                // Replacing Filter Names with actial Query Files
+                // Modifying filter names
+                String filterPrefix = '-FILTER-';
+                customFiltersLogic = customFiltersLogic.replaceAll('\\b(\\d+)\\b', filterPrefix+'$1');
+
+                // Replacing Filter Names with actual Query Files
                 for (String filterName : filtersMap.keySet()) {
-                    customFiltersLogic = customFiltersLogic.replace(filterName, filtersMap.get(filterName));
+                    customFiltersLogic = customFiltersLogic.replace(filterPrefix+filterName, filtersMap.get(filterName));
                 }
                 filters = customFiltersLogic;
             }
@@ -435,6 +441,7 @@ public with sharing class ChartComponentHandler {
 
             // Testing the query
             try{
+                System.debug(query);
                 Database.Query(query + ' LIMIT 0');
                 return query;
             }
@@ -454,6 +461,7 @@ public with sharing class ChartComponentHandler {
      */
     private static Boolean tryQuery(String query) {
         try{
+            System.debug(query);
             Database.Query(query + ' LIMIT 0');
             return true;
         }
