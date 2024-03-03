@@ -377,10 +377,12 @@ public with sharing class ChartComponentHandler {
                                             Dataset__c = :datasetId];
 
         if(filtersList.size() > 0) {
+            String filterPlaceholder = '---FILTERS---';
+
             if(noFilterApplied) {
-                query += ' WHERE (FILTERS)';
+                query += ' WHERE ('+filterPlaceholder+')';
             } else {
-                query += ' AND (FILTERS)';
+                query += ' AND ('+filterPlaceholder+')';
             }
 
             // Making Filters strings
@@ -437,7 +439,7 @@ public with sharing class ChartComponentHandler {
                 }
                 filters = customFiltersLogic;
             }
-            query = query.replace('FILTERS', filters);
+            query = query.replace(filterPlaceholder, filters);
 
             // Testing the query
             try{
