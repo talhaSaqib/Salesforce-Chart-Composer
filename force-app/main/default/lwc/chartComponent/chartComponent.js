@@ -47,7 +47,7 @@ export default class GraphLWC extends LightningElement {
 
     async getChartProperties() {
         await getChartData({ chartId: this.chartId,
-                             recordId: this.recordId })
+                             recordIdWhereChartIs: this.recordId })
         .then((result) => {
             result = JSON.parse(result);
             console.log('Response from Server: ', result);
