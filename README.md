@@ -8,7 +8,7 @@ Salesforce Chart Composer is an unmanaged package to create various kinds of cha
 
 ---
 
-## 📌 Table of Contents
+## Table of Contents
 
 - [Installation](#installation)  
 - [Create Sample Records](#create-sample-records)  
@@ -89,7 +89,7 @@ You should now see the chart rendered on the Lightning page.
 
 ---
 
-## 📚 Object References
+## Object References
 
 ### Chart  
 - **Object Name:** Chart  
