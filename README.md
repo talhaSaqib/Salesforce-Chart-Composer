@@ -43,19 +43,7 @@ Following are some of the features of this app.
 ## Show Dynamic Charts based on Record
 ![Dynamic Chart on Record Level 1](https://github.com/user-attachments/assets/fc0b7ab6-954d-4e83-8798-6f0101db8bc8)
 ![Dynamic Chart on Record Level](https://github.com/user-attachments/assets/a83abf6b-48a4-4d7e-be14-43d2123ad6c4)
- 
 
-## 🚀 When to Use Salesforce Chart Composer
-
-Use this tool if you've ever asked yourself:
-
-- ❓ *How do I create a chart in Salesforce?*
-- 📊 *What are the steps to design a bar or pie chart?*
-- 🎨 *How can I customize chart colors and styles?*
-- 🧱 *What chart components are available in the Lightning App Builder?*
-- 🔗 *How can I use multiple datasets in a single chart?*
-- 🔍 *How do I filter chart data based on custom conditions?*
-- 🔄 *How can I create dynamic charts that respond to Salesforce records?*
 
 If you're looking for a streamlined way to build impactful, flexible, and visually appealing charts in Salesforce—**without heavy development work**—then **Salesforce Chart Composer** is the perfect solution.
 
