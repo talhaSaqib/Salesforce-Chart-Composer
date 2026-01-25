@@ -6,6 +6,10 @@ Salesforce Chart Composer is an unmanaged package to create various kinds of cha
 | ------------- | ------------- |
 | Installation Link  | [Package](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t2w000009RhYY) |
 
+![1712969932263](https://github.com/user-attachments/assets/4da2ba16-9883-40c8-babf-64fb298db379)
+![1709490335538](https://github.com/user-attachments/assets/3d13ea79-3d5a-43f6-97c2-ee84594b53a7)
+
+
 ---
 
 ## Table of Contents
@@ -37,6 +41,8 @@ Before creating a chart, there must be some sample records in the org. For this 
 2. Fill the **Title** field with `Account Employees Count` and leave the **Relationship Field** blank for now.  
 3. Click **Save**.  
 4. Copy the auto-generated **Chart Id** value.
+
+![1](https://github.com/user-attachments/assets/c171bbb9-1b75-40e9-8633-318e7659aa3a)
 
 
 ## Create a Dataset for Chart
@@ -74,6 +80,8 @@ Although the chart is ready to render, you can optionally add extra filters to t
 
 For best practices, name your filters as numbers (e.g. `1`, `2`, etc.).
 
+![2](https://github.com/user-attachments/assets/1b8ab174-6555-4213-b919-4d6caaef79f3)
+
 
 ## Add Chart Component
 
@@ -83,9 +91,14 @@ Finally, add the chart to a page:
 2. Click **Edit Page** to open **Lightning App Builder**.  
 3. From the custom components, select `chartComponent` and drag it to the page.  
 4. Paste the copied **Chart Id** into the Chart Id field.  
-5. Click **Save**. 
+5. Click **Save**.
+
+![3](https://github.com/user-attachments/assets/320b4175-9c1a-4de0-be17-42c943ecc47a)
+
 
 You should now see the chart rendered on the Lightning page.
+
+![4](https://github.com/user-attachments/assets/9b9cadfe-b5ee-47bf-b6a4-5200e1162fcf)
 
 ---
 
